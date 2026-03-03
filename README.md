@@ -2,50 +2,53 @@
 
 > An AI-powered content moderation system that classifies online text into Safe, Hate Speech, and Real Threats using dual-model architecture (SVM + BERT) with interactive web deployment.
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
-[![Scikit-learn](https://img.shields.io/badge/Scikit--learn-1.0+-orange.svg)](https://scikit-learn.org/)
-[![Transformers](https://img.shields.io/badge/Transformers-4.0+-green.svg)](https://huggingface.co/transformers/)
-[![Gradio](https://img.shields.io/badge/Gradio-3.0+-red.svg)](https://gradio.app/)
+![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![Scikit-learn](https://img.shields.io/badge/Scikit--learn-1.0+-orange.svg)
+![Transformers](https://img.shields.io/badge/🤗%20Transformers-4.0+-yellow.svg)
+![Gradio](https://img.shields.io/badge/Gradio-3.0+-red.svg)
 
 ---
 
-## 📖 Project Overview
+## 📖 Overview
 
-Online platforms face increasing challenges in moderating user-generated content. Manual review is neither scalable nor cost-effective for millions of daily messages. This project builds an automated threat detection system that distinguishes between harmless content, offensive language, and actual violent threats.
+Social media platforms receive millions of messages daily. This project builds an automated system to detect threats in online text by classifying content into three categories: Safe, Hate Speech, and Real Threats.
 
-**Key Features:**
-- 3-class classification: Safe, Hate Speech, Real Threat
+**🎯 Key Features:**
+- 3-class classification system with priority hierarchy
 - Dual-model approach: Fast SVM + Accurate BERT
 - Trained on 159,571 Wikipedia comments
-- Interactive web application with Gradio
-- Batch CSV processing (up to 500 messages)
+- 94% accuracy with 85-90% threat detection
+- Interactive web app with batch processing
 - Model comparison interface
 
 ---
 
-## 🎯 Problem Statement
+## 🚨 Problem Statement
 
-**Challenge:** Social media platforms receive millions of messages daily. Current systems either:
-- Use keyword blocking (easily bypassed)
-- Apply binary toxic/safe classification (insufficient granularity)
-- Cannot balance speed and accuracy
+**Current Challenges:**
+- Manual moderation is impossible at scale
+- Keyword blocking is easily bypassed (k1ll, h@te)
+- Binary systems can't separate insults from actual threats
+- Single-model approaches can't balance speed and accuracy
 
-**Solution:** A dual-model system that lets users choose between:
-- **SVM**: Lightning-fast inference (0.001s), 88-91% accuracy
-- **BERT**: Context-aware analysis (0.1s), 94% accuracy
+**Our Solution:**
+A smart dual-model system where users choose:
+- **SVM**: Lightning-fast (0.001s), 88-91% accurate
+- **BERT**: Context-aware (0.1s), 94% accurate
 
 ---
 
 ## 📊 Dataset
 
 **Source:** Jigsaw Toxic Comment Classification Challenge  
-**Size:** 159,571 Wikipedia comments  
-**Original Labels:** 6 binary toxicity indicators (toxic, severe_toxic, obscene, threat, insult, identity_hate)  
+**Total:** 159,571 Wikipedia comments
 
-**3-Class Conversion:**
-- **Class 0 (Safe)**: All labels = 0 → 143,346 samples (89.8%)
-- **Class 1 (Hate Speech)**: Any toxic label BUT threat = 0 → 15,747 samples (9.9%)
-- **Class 2 (Real Threat)**: threat = 1 → 478 samples (0.3%)
+**Class Distribution:**
+| Class | Count | Percentage |
+|-------|-------|------------|
+| Safe | 143,346 | 89.8% |
+| Hate Speech | 15,747 | 9.9% |
+| Real Threat | 478 | 0.3% |
 
 **Final Split:**
 - Training: 29,997 samples (balanced: 10k per class)
@@ -53,122 +56,112 @@ Online platforms face increasing challenges in moderating user-generated content
 
 ---
 
-## 🛠️ Technologies Used
+## 🛠️ Tech Stack
 
-| Category | Tools |
-|----------|-------|
-| **Language** | Python 3.8+ |
-| **ML Libraries** | Scikit-learn, Transformers, PyTorch |
-| **Data Processing** | Pandas, NumPy |
-| **Visualization** | Matplotlib, Seaborn |
-| **NLP** | NLTK, TF-IDF Vectorizer, BERT Tokenizer |
-| **Deployment** | Gradio |
-| **Platform** | Google Colab (Tesla T4 GPU) |
+- **Python 3.8+**
+- **Machine Learning:** Scikit-learn, Transformers (Hugging Face)
+- **Deep Learning:** PyTorch, BERT (bert-base-uncased)
+- **Data Processing:** Pandas, NumPy, NLTK
+- **Visualization:** Matplotlib, Seaborn
+- **Deployment:** Gradio
+- **Platform:** Google Colab (Tesla T4 GPU)
 
 ---
 
 ## 🔬 Methodology
 
-### 1. Data Preprocessing
-- Combined 6 binary labels into 3-class taxonomy
-- Stratified train-test split (80/20) **before** balancing
-- Balanced training data only (prevents data leakage)
-- Text cleaning: lowercase, URL removal, special character handling
+### 1️⃣ Data Preprocessing
+```
+159,571 comments
+    ↓
+Convert 6 labels → 3 classes
+    ↓
+Split 80/20 (BEFORE balancing)
+    ↓
+Balance training set only
+    ↓
+Clean text (lowercase, remove URLs)
+```
 
-### 2. Feature Engineering
+### 2️⃣ Feature Engineering
 
-**For SVM:**
+**SVM Path:**
 - TF-IDF vectorization (10,000 features)
 - 1-3 word n-grams
-- Captures threat phrases like "will kill", "bomb threat"
+- Captures phrases like "will kill", "bomb threat"
 
-**For BERT:**
+**BERT Path:**
 - Tokenization (max 128 tokens)
-- Pre-trained bert-base-uncased (110M parameters)
-- Fine-tuned for 3 epochs on threat classification
+- Pre-trained transformer (110M parameters)
+- Fine-tuned for 3 epochs
 
-### 3. Model Training
+### 3️⃣ Model Training
 
-**SVM Model:**
+**Linear SVM:**
 ```python
 LinearSVC(C=0.5, class_weight='balanced')
-CalibratedClassifierCV(cv=3)  # For probability estimates
+CalibratedClassifierCV(cv=3)
 ```
-- Training time: 5 seconds
-- Inference: 0.001s per message
+⏱️ Training: 5 seconds | Inference: 0.001s
 
-**BERT Model:**
+**BERT Transformer:**
 ```python
 BertForSequenceClassification(num_labels=3)
-Training: 3 epochs, batch_size=16, Tesla T4 GPU
+Epochs: 3 | Batch: 16 | GPU: Tesla T4
 ```
-- Training time: 43 minutes
-- Inference: 0.1s per message
+⏱️ Training: 43 minutes | Inference: 0.1s
 
 ---
 
 ## 📈 Results
 
-### Model Performance
+### Performance Comparison
 
-| Metric | SVM | BERT | Improvement |
-|--------|-----|------|-------------|
-| **Accuracy** | 88-91% | 94.07% | +3-6% |
-| **Macro F1** | 0.72 | 0.74 | +2.8% |
-| **Threat Recall** | 85-90% | 85-90% | Similar |
-| **Inference Speed** | 0.001s | 0.1s | 100x faster (SVM) |
-| **Model Size** | 10 MB | 440 MB | 44x smaller (SVM) |
+| Metric | SVM | BERT | Winner |
+|--------|-----|------|--------|
+| Accuracy | 88-91% | 94.07% | 🏆 BERT |
+| Speed | 0.001s | 0.1s | 🏆 SVM |
+| Threat Recall | 85-90% | 85-90% | 🤝 Tie |
+| Model Size | 10 MB | 440 MB | 🏆 SVM |
 
 ### Sample Predictions
 
-| Input Text | SVM | BERT | Correct? |
-|------------|-----|------|----------|
-| "I will kill you tomorrow" | Threat (98.7%) | Threat (99.6%) | ✅ |
-| "You're a fucking idiot" | Hate (99.9%) | Hate (99.9%) | ✅ |
-| "Thanks for your help!" | Safe (98.5%) | Safe (99.9%) | ✅ |
-| "You're killing it!" (slang) | Hate (65%) ❌ | Safe (89%) ✅ | Context matters! |
+| Input Text | SVM | BERT | Status |
+|------------|-----|------|--------|
+| "I will kill you tomorrow" | Threat 98% | Threat 99% | ✅ |
+| "You're a fucking idiot" | Hate 99% | Hate 99% | ✅ |
+| "Thanks for your help!" | Safe 98% | Safe 99% | ✅ |
+| "You're killing it!" | Hate 65% | Safe 89% | 🎯 BERT wins! |
 
-### Key Insights
-
-✅ **BERT understands context better** (e.g., figurative language)  
-✅ **SVM is 100x faster** for high-volume processing  
-✅ **Both catch 85-90% of real threats** with <1% false alarms  
-✅ **Dual-model approach** enables use-case flexibility  
+**💡 Insight:** BERT understands context better (figurative vs literal)
 
 ---
 
-## 🌐 Live Demo
+## 🌐 Web Application
 
-The system is deployed using **Gradio** with three main features:
+Built with **Gradio** - Interactive interface with 3 features:
 
 ### 1. Single Text Classification
 - Real-time prediction
-- Confidence scores for all 3 classes
-- Choose between SVM (fast) or BERT (accurate)
+- Confidence scores (Safe, Hate, Threat)
+- Choose SVM or BERT
 
 ### 2. Batch CSV Processing
-- Upload CSV files (up to 500 messages)
+- Upload CSV with up to 500 messages
 - Auto-detects text column
-- Download results with predictions
+- Download results instantly
 
 ### 3. Model Comparison
-- Side-by-side SVM vs BERT predictions
-- Compare performance on same input
+- Side-by-side SVM vs BERT
+- Compare predictions on same text
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-```bash
-Python 3.8+
-pip
-Google Colab (optional, for GPU training)
-```
-
 ### Installation
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/yourusername/threat-detection.git
 cd threat-detection
 
@@ -176,7 +169,7 @@ cd threat-detection
 pip install -r requirements.txt
 ```
 
-### Run Locally
+### Run Application
 ```bash
 # Launch Gradio app
 python app.py
@@ -184,17 +177,15 @@ python app.py
 # Open browser at http://localhost:7860
 ```
 
-### Test with Sample Data
+### Test Predictions
 ```python
 from predict import predict_threat
 
 # Test SVM
-result = predict_threat("I will attack tomorrow", model="SVM")
-print(result)
+predict_threat("I will attack tomorrow", model="SVM")
 
 # Test BERT
-result = predict_threat("You're killing it!", model="BERT")
-print(result)
+predict_threat("You're killing it!", model="BERT")
 ```
 
 ---
@@ -203,145 +194,124 @@ print(result)
 ```
 threat-detection/
 │
-├── notebooks/
-│   └── threat_detection_complete.ipynb    # Full training pipeline
+├── threat_detection.ipynb          # Complete training notebook
 │
 ├── models/
-│   ├── threat_detector_svm.pkl            # Trained SVM model
-│   ├── tfidf_vectorizer.pkl               # TF-IDF vectorizer
-│   ├── bert_model/                        # Saved BERT model
-│   └── bert_tokenizer/                    # BERT tokenizer
+│   ├── threat_detector_svm.pkl     # Trained SVM
+│   ├── tfidf_vectorizer.pkl        # TF-IDF vectorizer
+│   ├── bert_model/                 # BERT checkpoint
+│   └── bert_tokenizer/             # BERT tokenizer
 │
-├── app.py                                  # Gradio web app
-├── predict.py                              # Prediction functions
-├── requirements.txt                        # Dependencies
-├── README.md                               # This file
-│
-└── data/
-    └── sample_test.csv                    # Sample test data
+├── app.py                          # Gradio web app
+├── predict.py                      # Prediction functions
+├── requirements.txt                # Dependencies
+└── README.md                       # This file
 ```
 
 ---
 
-## 📊 Data Handling Best Practices
+## ⚠️ Data Leakage Prevention
 
-### ⚠️ Important: Preventing Data Leakage
-
-**WRONG Approach (causes leakage):**
+**WRONG ❌**
 ```python
-# ❌ Balance first, then split
 balanced_data = balance_classes(data)
-train, test = split(balanced_data)  # Same samples in train & test!
+train, test = split(balanced_data)  # Same samples in both!
 ```
 
-**CORRECT Approach (used in this project):**
+**CORRECT ✅**
 ```python
-# ✅ Split first, then balance training only
-train, test = split(data)           # Separate samples
+train, test = split(data)           # Split FIRST
 train_balanced = balance_classes(train)
-# Test set keeps natural distribution
+# Test keeps natural distribution
 ```
 
-This ensures:
-- No overlap between train and test
-- Realistic performance estimates
-- Model generalizes, not memorizes
+This ensures realistic performance estimates!
 
----
-
-## 🎓 Academic Context
-**Project Type:** Final Year BSc Data Science Project   
- 
 ---
 
 ## 💡 Use Cases
 
-This system can be applied to:
-
-- **Social Media Platforms**: Automated content moderation
-- **Online Forums**: Flag dangerous content for review
-- **Customer Support**: Identify threatening messages
-- **Gaming Platforms**: Detect toxic behavior
-- **Corporate Communications**: Monitor employee communications
+**Social Media:** Automated content moderation  
+**Online Forums:** Flag dangerous content  
+**Gaming Platforms:** Detect toxic behavior  
+**Customer Support:** Identify threatening messages  
+**Corporate Comms:** Monitor internal communications  
 
 **Business Impact:**
-- 85-90% threat detection rate
-- <1% false positive rate
-- Process 1000+ messages/second (SVM)
-- Reduce manual moderation by 70%
+- ✅ 85-90% threat detection
+- ✅ <1% false alarms
+- ✅ 1000+ messages/second (SVM)
+- ✅ 70% reduction in manual moderation
 
 ---
 
 ## 🔮 Future Enhancements
 
-1. **Multi-language Support**: Extend beyond English
-2. **Explainability**: Add LIME/SHAP for interpretability
-3. **Active Learning**: Continuous model improvement
-4. **Severity Scoring**: Fine-grained threat levels
-5. **Real-time Streaming**: Process live social media feeds
-6. **Ensemble Methods**: Combine multiple models
-7. **User Feedback Loop**: Learn from corrections
+- [ ] Multi-language support (Spanish, French, Arabic)
+- [ ] Explainability with LIME/SHAP
+- [ ] Real-time streaming for social media
+- [ ] Severity scoring (low/medium/high threat)
+- [ ] Active learning from user feedback
+- [ ] Ensemble methods (combine multiple models)
 
 ---
 
-## 📝 Research References
+## 🎓 Academic Context
 
-This project builds upon recent research in:
+**Project:** Final Year BSc Data Science 
 
-- Hate Speech Detection using BERT/RoBERTa (2023-2024)
-- Multi-task Learning for Toxic Comment Classification (2023)
-- Ensemble Methods for Online Threat Detection (2022-2024)
-- Lightweight Transformers for Real-time Moderation (2024-2025)
+---
 
-**Key Gap Addressed:** Most systems use single model approach. This project enables users to choose between speed (SVM) and accuracy (BERT) based on operational requirements.
+## 📚 References
+
+Based on recent research in:
+- Hate Speech Detection (BERT/RoBERTa, 2023-2024)
+- Multi-task Toxicity Classification (2023)
+- Real-time Moderation Systems (2024-2025)
+
+**Our Contribution:** First dual-model system enabling speed/accuracy trade-offs
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please:
+Contributions welcome!
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+1. Fork the repo
+2. Create branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add feature'`)
+4. Push (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
 
 ---
 
 ## 👨‍💻 Author
 
 **Rakesh Y** 
- 
 
 📧 Email: rakeshrollans123@gmail.com 
-🔗 LinkedIn: [linkedin.com/in/rakesh0910](https://www.linkedin.com/in/rakesh0910)  
-💻 GitHub: [github.com/rakeshrollans123-ship-it](https://github.com/rakeshrollans123-ship-it)
+🔗 LinkedIn: [linkedin.com/in/rakesh0910]
+💻 GitHub: [github.com/rakeshrollans123-ship-it]
 
 ---
 
 ## 🙏 Acknowledgments
 
-- **Jigsaw/Conversation AI** for the Toxic Comment dataset
-- **Hugging Face** for BERT pre-trained models
-- **Gradio Team** for the deployment framework
-- **Google Colab** for free GPU access
+- Jigsaw/Conversation AI for the dataset
+- Hugging Face for BERT models
+- Gradio team for deployment framework
+- Google Colab for free GPU access
 
 ---
 
+## ⭐ Star This Repo!
 
-
-## ⭐ Star This Repository
-
-If you found this project useful, please consider giving it a star! It helps others discover the project.
+If this project helped you, please give it a star! ⭐
 
 ---
 
 **Last Updated:** March 2026  
-**Project Status:** 🟡 In Progress (60% Complete)
+
+
+---
+
