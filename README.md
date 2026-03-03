@@ -143,6 +143,7 @@ This solution can help organizations:
 ---
 
 ## 📂 Project Structure
+
 cyber-threat-detection/
 │
 ├── threat_detection.ipynb
