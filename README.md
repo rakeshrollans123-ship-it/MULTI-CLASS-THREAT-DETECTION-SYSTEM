@@ -252,22 +252,6 @@ This ensures:
 ## 🎓 Academic Context
 **Project Type:** Final Year BSc Data Science Project   
  
-
-
-### Completed (60%):
-✅ Data collection and preprocessing  
-✅ SVM model training and evaluation  
-✅ BERT model training (in progress)  
-✅ Basic web interface deployment  
-✅ Initial testing and validation  
-
-### Remaining (40%):
-🔲 Complete BERT model evaluation  
-🔲 Add batch CSV processing  
-🔲 Full model comparison analysis  
-🔲 Performance optimization  
-🔲 Final documentation  
-
 ---
 
 ## 💡 Use Cases
